@@ -20,6 +20,7 @@ image_ext = ['jpg', 'jpeg', 'png']
 mean = np.array([0.485, 0.456, 0.406], np.float32).reshape(1, 1, 3)
 std = np.array([0.229, 0.224, 0.225], np.float32).reshape(1, 1, 3)
 
+
 def is_image(file_name):
   ext = file_name[file_name.rfind('.') + 1:].lower()
   return ext in image_ext
@@ -42,12 +43,15 @@ def demo_image(image, model, opt):
                          out['depth'].detach().cpu().numpy())[0]
 
 
-  # debugger = Debugger()
-  # debugger.add_img(image)
-  # debugger.add_point_2d(pred, (255, 0, 0))
-  # debugger.add_point_3d(pred_3d, 'b')
-  # debugger.show_all_imgs(pause=False)
-  # debugger.show_3d()
+  debugger = Debugger()
+  debugger.add_img(image)
+  debugger.add_point_2d(pred, (255, 0, 0))
+
+  pred_3d[9, 0] += 0.2
+
+  debugger.add_point_3d(pred_3d, 'b')
+  debugger.show_all_imgs(pause=False)
+  debugger.show_3d()
 
 def main(opt):
   opt.heads['depth'] = opt.num_output
