@@ -38,15 +38,16 @@ def demo_image(image, model, opt):
   out = model(inp)[-1]
   pred = get_preds(out['hm'].detach().cpu().numpy())[0]
   pred = transform_preds(pred, c, s, (opt.output_w, opt.output_h))
-  pred_3d = get_preds_3d(out['hm'].detach().cpu().numpy(), 
+  pred_3d = get_preds_3d(out['hm'].detach().cpu().numpy(),
                          out['depth'].detach().cpu().numpy())[0]
-  
-  debugger = Debugger()
-  debugger.add_img(image)
-  debugger.add_point_2d(pred, (255, 0, 0))
-  debugger.add_point_3d(pred_3d, 'b')
-  debugger.show_all_imgs(pause=False)
-  debugger.show_3d()
+
+
+  # debugger = Debugger()
+  # debugger.add_img(image)
+  # debugger.add_point_2d(pred, (255, 0, 0))
+  # debugger.add_point_3d(pred_3d, 'b')
+  # debugger.show_all_imgs(pause=False)
+  # debugger.show_3d()
 
 def main(opt):
   opt.heads['depth'] = opt.num_output
@@ -56,7 +57,7 @@ def main(opt):
     opt.device = torch.device('cuda:{}'.format(opt.gpus[0]))
   else:
     opt.device = torch.device('cpu')
-  
+
   model, _, _ = create_model(opt)
   model = model.to(opt.device)
   model.eval()
@@ -73,7 +74,7 @@ def main(opt):
     print('Running {} ...'.format(opt.demo))
     image = cv2.imread(opt.demo)
     demo_image(image, model, opt)
-    
+
 
 if __name__ == '__main__':
   opt = opts().parse()
