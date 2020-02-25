@@ -124,3 +124,23 @@ python main.py --exp_id fusion_3d_var --task human3d --dataset fusion_3d --ratio
     month = {Oct},
     year = {2017}
     }
+    
+    
+## References for positions returned from the model
+
+0. right foot
+1. right knee
+2. right hip
+3. left hip
+4. left knee
+5. left foot
+6. midpoint of hips
+7. ??? (disconnected point behind neck?)
+8. base of neck (roughly level with shoulders)
+9. center of head
+10. right hand
+11. right elbow
+12. right shoulder
+13. left shoulder
+14. left elbow
+15. left hand
