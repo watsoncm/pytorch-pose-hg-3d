@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import torch
-
+import time
 import _init_paths
 from opts import opts
 from model import create_model
@@ -30,13 +30,30 @@ def get_angle(first, vertex, second):
   return np.arccos(cos_theta)
 
 
-def get_score(pred_3d):
-    hand_pos = pred_3d[10, :]
-    shoulder_pos = pred_3d[12, :]
-    if hand_pos[0] > shoulder_pos[0]:
-        print('Hand to left of shoulder!')
-    if shoulder_pos[0] > hand_pos[0]:
-        print('Hand above shoulder!')
+def get_score_right_hand_to_mouth(pred_3d):
+    score = 0
+    right_hand_pos = pred_3d[10, :]
+    right_shoulder_pos = pred_3d[12, :]
+    left_shoulder_pos = pred_3d[13, :]
+    neck_base_pos = pred_3d[8, :]
+    face_center_pos = pred_3d[9, :]
+
+    average_shoulder_pos = (right_shoulder_pos[0] + left_shoulder_pos[0]) * 0.5
+    dist_between_shoulders = abs(right_shoulder_pos[0] - left_shoulder_pos[0])
+    distance_from_midline = abs(abs(right_hand_pos[0] - left_shoulder_pos[0]) - abs(right_hand_pos[0] - average_shoulder_pos))
+
+    dist_above_neck = right_hand_pos[1] - neck_base_pos[1]
+    dist_below_face = face_center_pos[1] - right_hand_pos[1]
+
+    if right_hand_pos[0] > right_shoulder_pos[0] or right_shoulder_pos[1] < right_hand_pos[1]:
+        score = 0.5
+    elif right_hand_pos[0] > right_shoulder_pos[0] and right_shoulder_pos[1] < right_hand_pos[1]:
+        score = 1
+    elif distance_from_midline < 0.15 * dist_between_shoulders and dist_below_face > dist_above_neck:
+        score = 2
+
+    return score
+
 
 
 while True:
@@ -56,8 +73,6 @@ while True:
     pred = transform_preds(pred, c, s, (opt.output_w, opt.output_h))
     pred_3d = get_preds_3d(out['hm'].detach().cpu().numpy(),
                            out['depth'].detach().cpu().numpy())[0]
-
-    get_score(pred_3d)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
